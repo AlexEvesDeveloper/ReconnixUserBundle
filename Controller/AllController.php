@@ -15,18 +15,17 @@ class AllController extends Controller
      */
     public function indexAction()
     {
-        //$roles = $this->container->getParameter('security.role_hierarchy.roles');
-    	$users = $this->getDoctrine()->getRepository('ReconnixUtilBundle:User')->findAll();
-/*
-        $forms = array();
-        foreach($users as $user){
-            $form = $this->createForm(new UserRoleFormType($roles, current($user->getRoles())));
-           // $rows['user'] = $user;
-            $forms[] = $form->createView();
-        }
-*/
+        // convert the the FQCN of the User class into Doctrine Repo syntax
+        $fqcn = ($this->container->getParameter('fos_user.model.user.class'));
+        $bundleName = strstr($fqcn, '\\', true);
+        $className = ltrim(strrchr($fqcn, '\\'), '\\');
+        $repo = sprintf('%s:%s', $bundleName, $className);
+
+
+        $users = $this->getDoctrine()->getRepository($repo)->findAll();
+
         return array(
-        	'users' => $users
+            'users' => $users
         );
     }
 }
