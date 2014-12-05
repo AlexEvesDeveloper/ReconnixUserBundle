@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service id="reconnix_user.registration.form" factory-method="createNamed" factory-service="form.factory" class="Symfony\Component\Form\Form">
+            <argument>%reconnix_user.registration.form.name%</argument>
+            <argument>%reconnix_user.registration.form.type%</argument>
+            <argument>null</argument>
+            <argument type="collection">
+                <argument key="validation_groups">%fos_user.registration.form.validation_groups%</argument>
+            </argument>
+        </service>
+
+        <service id="reconnix_user.registration.form.type" class="Reconnix\UserBundle\Form\Type\RegistrationFormType">
+            <tag name="form.type" alias="reconnix_user_registration" />
+            <argument>%fos_user.model.user.class%</argument>
+            <argument type="service" id="service_container" />
+        </service>
+    </services>
+
+</container>
