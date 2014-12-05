@@ -1,0 +1,27 @@
+{
+	"name": "reconnix/userbundle",
+	"description": "A wrapper for FOSUserBundle with Role management",
+    "type": "symfony-bundle",
+    "authors": [{
+        "name": "reconnixuserbundle",
+        "email": "development@reconnix.com"
+    }],
+    "keywords": [
+    	"demo bundle"
+    ],
+    "license": {
+	},
+	"autoload": {
+		"psr-0": {
+			"Reconnix\\UserBundle": ""
+		}
+	},
+	"target-dir": "Reconnix/UserBundle",
+	"repositories": [{
+	}],
+	"extra": {
+		"branch-alias":{
+			"dev-master": "0.1"
+		}
+	}
+}
