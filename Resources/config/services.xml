@@ -20,6 +20,21 @@
             <argument>%fos_user.model.user.class%</argument>
             <argument type="service" id="service_container" />
         </service>
+
+        <service id="reconnix_user.profile.form" factory-method="createNamed" factory-service="form.factory" class="Symfony\Component\Form\Form">
+            <argument>%reconnix_user.profile.form.name%</argument>
+            <argument>%reconnix_user.profile.form.type%</argument>
+            <argument>null</argument>
+            <argument type="collection">
+                <argument key="validation_groups">%fos_user.profile.form.validation_groups%</argument>
+            </argument>
+        </service>
+
+        <service id="reconnix_user.profile.form.type" class="Reconnix\UserBundle\Form\Type\ProfileFormType">
+            <tag name="form.type" alias="reconnix_user_profile" />
+            <argument>%fos_user.model.user.class%</argument>
+            <argument type="service" id="service_container" />
+        </service>
     </services>
 
 </container>

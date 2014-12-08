@@ -27,9 +27,26 @@ class ViewController extends Controller
         $repo = sprintf('%s:%s', $bundleName, $className);
 
         $user = $this->getDoctrine()->getRepository($repo)->find($id);
+        $form = $this->container->get('fos_user.profile.form');
+        $form->setData($user);
+
+        $form->handleRequest($request);
+        if($form->isValid()){
+            
+            // set the role
+            if(($role = $request->request->get('reconnix_user_profile_form')['roles']) != null){
+                $user->setRoles(array($role), 'ROLE_USER');
+            }
+
+            // finish up
+            $em = $this->container->get('doctrine')->getManager();
+            $em->persist($user);
+            $em->flush();
+        }
 
         return array(
-            'user' => $user
+            'user' => $user,
+            'form' => $form->createView()
         );
     }
 }

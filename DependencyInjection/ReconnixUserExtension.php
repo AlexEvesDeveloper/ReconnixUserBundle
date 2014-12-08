@@ -28,9 +28,15 @@ class ReconnixUserExtension extends Extension
         // this bundle wraps FOSUserBundle, so set some of its configuration here
         $container->setParameter('fos_user.registration.form.type', 'reconnix_user_registration');
         $container->setParameter('fos_user.registration.form.name', 'reconnix_user_registration_form');
+        $container->setParameter('fos_user.profile.form.type', 'reconnix_user_profile');
+        $container->setParameter('fos_user.profile.form.name', 'reconnix_user_profile_form');
 
         if (!empty($config['registration'])) {
             $this->loadRegistration($config['registration'], $container, $loader);
+        }
+
+        if (!empty($config['profile'])) {
+            $this->loadProfile($config['profile'], $container, $loader);
         }
     }
 
@@ -38,6 +44,13 @@ class ReconnixUserExtension extends Extension
     {
         $this->remapParametersNamespaces($config, $container, array(
             'form' => 'reconnix_user.registration.form.%s',
+        ));
+    }
+
+    private function loadProfile(array $config, ContainerBuilder $container, XmlFileLoader $loader)
+    {
+        $this->remapParametersNamespaces($config, $container, array(
+            'form' => 'reconnix_user.profile.form.%s',
         ));
     }
 

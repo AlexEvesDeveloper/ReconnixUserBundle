@@ -22,6 +22,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('reconnix_user');
 
         $this->addRegistrationConfig($rootNode);
+        $this->addProfileConfig($rootNode);
 
         return $treeBuilder;
     }
@@ -42,6 +43,30 @@ class Configuration implements ConfigurationInterface
                                 ->arrayNode('validation_groups')
                                     ->prototype('scalar')->end()
                                     ->defaultValue(array('Registration', 'Default'))
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+    }
+
+    private function addProfileConfig(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('profile')
+                    ->addDefaultsIfNotSet()
+                    ->canBeUnset()
+                    ->children()
+                        ->arrayNode('form')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('type')->defaultValue('reconnix_user_profile')->end()
+                                ->scalarNode('name')->defaultValue('reconnix_user_profile_form')->end()
+                                ->arrayNode('validation_groups')
+                                    ->prototype('scalar')->end()
+                                    ->defaultValue(array('Profile', 'Default'))
                                 ->end()
                             ->end()
                         ->end()
