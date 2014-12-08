@@ -17,7 +17,9 @@ class AllController extends Controller
     {
         // convert the the FQCN of the User class into Doctrine Repo syntax
         $fqcn = ($this->container->getParameter('fos_user.model.user.class'));
-        $bundleName = strstr($fqcn, '\\', true);
+        $unfilteredBundleName = strstr($fqcn, '\\Bundle', true);
+        $filteredBundleName = str_replace('\\', '', $unfilteredBundleName);
+        $bundleName = sprintf('%sBundle', $filteredBundleName);
         $className = ltrim(strrchr($fqcn, '\\'), '\\');
         $repo = sprintf('%s:%s', $bundleName, $className);
 
