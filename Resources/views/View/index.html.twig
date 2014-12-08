@@ -1,1 +1,6 @@
-{{form(form)}}
+<form action="{{ path('reconnix_user_view_index', {'id': user.id}) }}" {{ form_enctype(form) }} method="POST" class="fos_user_profile_edit">
+    {{ form_widget(form) }}
+    <div>
+        <input type="submit" value="{{ 'profile.edit.submit'|trans({}, 'FOSUserBundle') }}" />
+    </div>
+</form>
