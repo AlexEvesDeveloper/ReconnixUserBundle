@@ -8,15 +8,16 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use FOS\UserBundle\Form\Type\ProfileFormType as BaseType;
 
-class ProfileFormType extends BaseType
+class ProfileFormType extends AbstractType
 {
+    protected $class;
     protected $roles;
     protected $currentRole;
     protected $container;
 
     public function __construct($class, Container $container, $currentRole = 'ROLE_USER')
     {
-        parent::__construct($class);
+        $this->class = $class;
 
         $this->container = $container;
         if($this->container->get('security.context')->isGranted('ROLE_ADMIN')){
@@ -26,7 +27,7 @@ class ProfileFormType extends BaseType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        parent::buildUserForm($builder, $options);
+        $this->buildUserForm($builder, $options);
         
         if($this->roles !== null){
             $builder->add('roles', 'choice', array(
@@ -39,9 +40,31 @@ class ProfileFormType extends BaseType
         }
     }
 
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class' => $this->class,
+            'intention'  => 'profile',
+        ));
+    }
+
     public function getName()
     {
         return 'reconnix_user_profile';
+    }
+
+    /**
+     * Builds the embedded form representing the user.
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
+     */
+    protected function buildUserForm(FormBuilderInterface $builder, array $options)
+    {
+        $builder
+            ->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle'))
+            ->add('email', 'email', array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
+        ;
     }
 
     private function refactorRoles($originRoles)

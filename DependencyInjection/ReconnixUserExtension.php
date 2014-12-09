@@ -25,12 +25,6 @@ class ReconnixUserExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        // this bundle wraps FOSUserBundle, so set some of its configuration here
-        //$container->setParameter('fos_user.registration.form.type', 'reconnix_user_registration');
-        //$container->setParameter('fos_user.registration.form.name', 'reconnix_user_registration_form');
-        //$container->setParameter('fos_user.profile.form.type', 'reconnix_user_profile');
-        //$container->setParameter('fos_user.profile.form.name', 'reconnix_user_profile_form');
-
         if (!empty($config['registration'])) {
             $this->loadRegistration($config['registration'], $container, $loader);
         }
