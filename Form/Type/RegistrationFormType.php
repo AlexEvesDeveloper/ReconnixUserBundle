@@ -6,17 +6,18 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use FOS\UserBundle\Form\Type\RegistrationFormType as BaseType;
 
-class RegistrationFormType extends BaseType
+
+class RegistrationFormType extends AbstractType
 {
+    protected $class;
     protected $roles;
     protected $currentRole;
     protected $container;
 
     public function __construct($class, Container $container, $currentRole = 'ROLE_USER')
     {
-        parent::__construct($class);
+        $this->class = $class;
 
         $this->container = $container;
         if($this->container->get('security.context')->isGranted('ROLE_ADMIN')){
@@ -26,8 +27,18 @@ class RegistrationFormType extends BaseType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        parent::buildForm($builder, $options);
-        
+        $builder
+            ->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle'))
+            ->add('email', 'email', array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
+            ->add('plainPassword', 'repeated', array(
+                'type' => 'password',
+                'options' => array('translation_domain' => 'FOSUserBundle'),
+                'first_options' => array('label' => 'form.password'),
+                'second_options' => array('label' => 'form.password_confirmation'),
+                'invalid_message' => 'fos_user.password.mismatch',
+            ))
+        ;
+
         if($this->roles !== null){
             $builder->add('roles', 'choice', array(
                 'choices' => $this->roles,
@@ -37,6 +48,14 @@ class RegistrationFormType extends BaseType
                 'data' => $this->currentRole
             ));
         }
+    }
+
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class' => $this->class,
+            'intention'  => 'registration',
+        ));
     }
 
     public function getName()
