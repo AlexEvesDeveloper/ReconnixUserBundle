@@ -18,7 +18,7 @@ As this is a wrapper for FOSUserBundle, that will also need installing, alongsid
 From the root of the project, (where your `composer.json` file lives), run the following command:
 
 ``` bash
-$ php composer.phar require friendsofsymfony/user-bundle`
+$ php composer.phar require friendsofsymfony/user-bundle
 ```
 
 To install this bundle, we need to do a little extra work, as it has not been added as an offical Packagist bundle. Open your `composer.json` file and add the following:
@@ -39,7 +39,7 @@ To install this bundle, we need to do a little extra work, as it has not been ad
 Now run the update command:
 
 ``` bash
-$ php composer.phar update reconnix/userbundle`
+$ php composer.phar update reconnix/userbundle
 ```
 
 ### Step 2: Enable the bundles
@@ -47,8 +47,9 @@ $ php composer.phar update reconnix/userbundle`
 Add both bundles to the `AppKernel`:
 
 ``` php
+# app/AppKernel.php
+
 <?php
-// app/AppKernel.php
 
 public function registerBundles()
 {
@@ -63,5 +64,10 @@ public function registerBundles()
 ### Step 3: Set up some necessary configuration
 
 ```js
+# app/config/config.yml
 
+fos_user:
+    db_driver: orm
+    firewall_name: main
+    user_class: MyProject\UserBundle\Entity\User 
 ````
