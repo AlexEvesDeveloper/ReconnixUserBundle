@@ -27,7 +27,7 @@ class ViewController extends Controller
         $repo = sprintf('%s:%s', $bundleName, $className);
 
         $user = $this->getDoctrine()->getRepository($repo)->find($id);
-        $form = $this->container->get('fos_user.profile.form');
+        $form = $this->container->get('reconnix_user.profile.form');
         $form->setData($user);
 
         $form->handleRequest($request);

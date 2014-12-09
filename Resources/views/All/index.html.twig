@@ -1,4 +1,7 @@
-{% for user in users %}
-{{user.username}}<br>
+{% extends "FOSUserBundle::layout.html.twig" %}
 
-{% endfor %}
+{% block fos_user_content %}
+	{% for user in users %}
+		{{user.username}}<br>
+	{% endfor %}
+{% endblock fos_user_content %}
