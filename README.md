@@ -63,7 +63,7 @@ public function registerBundles()
 
 ### Step 3: Set up some necessary configuration
 
-```js
+```yaml
 # app/config/config.yml
 
 fos_user:
