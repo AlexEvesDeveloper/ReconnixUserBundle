@@ -202,4 +202,4 @@ $ php app/console fos:user:create superuser --super-admin
 
 And follow the prompts.
 
-If that works, you should be able to log in as that user from `.com//login`. And can now access `.com//users`
+If that works, you should be able to log in as that user from `.com/login`. And can now access `.com/users`
