@@ -63,6 +63,10 @@ public function registerBundles()
 
 ### Step 3: Set up some necessary configuration
 
+#### FOSUserBundle configuration
+
+The following three parameters are required. `firewall_name` must match the name of the firewall that you specify later. The `user_class` must refer to the namespace of the User Entity that you will create in your project.
+
 ```yaml
 # app/config/config.yml
 
@@ -70,4 +74,72 @@ fos_user:
     db_driver: orm
     firewall_name: main
     user_class: MyProject\UserBundle\Entity\User 
-````
+```
+
+#### Routing configuration
+
+The `reconnix_user` configuration will enable access to a /users area. To see the routes the are available within /users, run `php app/console router:debug`
+
+```yaml
+# app/config/routing.yml
+
+reconnix_user:
+    resource: "@ReconnixUserBundle/Controller/"
+    type:     annotation
+    prefix:   /users
+
+fos_user_security:
+    resource: "@FOSUserBundle/Resources/config/routing/security.xml"
+
+fos_user_profile:
+    resource: "@FOSUserBundle/Resources/config/routing/profile.xml"
+    prefix: /profile
+
+fos_user_register:
+    resource: "@FOSUserBundle/Resources/config/routing/registration.xml"
+    prefix: /register
+
+fos_user_resetting:
+    resource: "@FOSUserBundle/Resources/config/routing/resetting.xml"
+    prefix: /resetting
+
+fos_user_change_password:
+    resource: "@FOSUserBundle/Resources/config/routing/change_password.xml"
+    prefix: /profile
+```
+
+#### Security configuration
+
+**Important:** The roles configured under `role_hierarchy` determine which roles can be assigned and managed. Below is a good default option. The `access_control` configuration dictates that only users with ROLE_SUPER_ADMIN can access the user manager area
+
+```yaml
+# app/config/security.yml
+security:
+    encoders:
+        FOS\UserBundle\Model\UserInterface: sha512
+
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
+
+    providers:
+        fos_userbundle:
+            id: fos_user.user_provider.username
+
+    firewalls:
+        main:
+            pattern: ^/
+            form_login:
+                provider: fos_userbundle
+                csrf_provider: form.csrf_provider
+            logout:       true
+            anonymous:    true
+
+    access_control:
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/, role: ROLE_ADMIN }
+        - { path: ^/users/, role: ROLE_SUPER_ADMIN }
+```
+
