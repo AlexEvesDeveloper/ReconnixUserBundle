@@ -110,7 +110,7 @@ fos_user_change_password:
 
 #### Security configuration
 
-**Important:** The roles configured under `role_hierarchy` determine which roles can be assigned and managed. Below is a good default option. The `access_control` configuration dictates that only users with ROLE_SUPER_ADMIN can access the user manager area
+**Important:** The roles configured under `role_hierarchy` determine which roles can be assigned and managed. Below is a good default option. The `access_control` configuration dictates that only users with ROLE_SUPER_ADMIN can access the user manager area. Also note that the firewal; `main` matches the name you defined in `config.yml`.
 
 ```yaml
 # app/config/security.yml
@@ -143,3 +143,63 @@ security:
         - { path: ^/users/, role: ROLE_SUPER_ADMIN }
 ```
 
+### Step 4: Create a User class
+
+You must create a User class, under the same namespace as the one declared earlier in `config.yml`. Note, this must exist within the `Entity` directory of the bundle. The User class must declare the name of the users table to be created in the database:
+
+``` php
+# src/MyProject\UserBundle\Entity
+
+<?php
+
+namespace MyProject\UserBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use FOS\UserBundle\Entity\User as BaseUser;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * User
+ *
+ * @ORM\Table("rx_users")
+ * @ORM\Entity
+ */
+class User extends BaseUser
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+}
+```
+
+### Step 5: Update the database
+
+We need to tell the database about our new User entity:
+
+```bash
+$ php app/console doctrine:schema:update --force
+```
+
+### Step 6: Create a Super User
+
+We are almost there, we just need to create a Super User with which we can manage other Users. 
+
+On the command line:
+
+```bash
+$ php app/console fos:user:create superuser --super-admin
+```
+
+And follow the prompts.
+
+If that works, you should be able to log in as that user from `.com//login`. And can now access `.com//users`
