@@ -74,7 +74,8 @@ class ProfileFormType extends AbstractType
 
     private function getCurrentRole()
     {
-        $roles = $this->container->get('security.token_storage')->getToken()->getUser()->getRoles();
+        $repo = $this->container->get('reconnix_user.user_manager')->getUserRepository();
+        $roles = $this->em->getRepository($repo)->find(2)->getRoles();
         return $roles[0];
     }
 

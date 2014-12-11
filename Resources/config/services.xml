@@ -37,6 +37,11 @@
             <argument type="service" id="request_stack" />
             <argument type="service" id="doctrine.orm.entity_manager" />
         </service>
+
+        <service id="reconnix_user.user_manager" class="Reconnix\UserBundle\Classes\UserManager">
+            <argument type="service" id="service_container" />
+        </service>
+
     </services>
 
 </container>
