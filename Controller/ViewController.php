@@ -16,15 +16,7 @@ class ViewController extends Controller
      */
     public function indexAction(Request $request, $id)
     {
-        // convert the the FQCN of the User class into Doctrine Repo syntax
-        $fqcn = ($this->container->getParameter('fos_user.model.user.class'));
-        $unfilteredBundleName = strstr($fqcn, 'Bundle', true);
-        $filteredBundleName = str_replace('\\', '', $unfilteredBundleName);
-
-        $bundleName = sprintf('%sBundle', $filteredBundleName);
-        $className = ltrim(strrchr($fqcn, '\\'), '\\');
-
-        $repo = sprintf('%s:%s', $bundleName, $className);
+        $repo = $this->container->get('reconnix_user.user_manager')->getUserRepository();
 
         $user = $this->getDoctrine()->getRepository($repo)->find($id);
         $form = $this->container->get('reconnix_user.profile.form');
