@@ -6,20 +6,25 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Doctrine\ORM\EntityManager;
 use FOS\UserBundle\Form\Type\ProfileFormType as BaseType;
 
 class ProfileFormType extends AbstractType
 {
     protected $class;
     protected $roles;
-    protected $currentRole;
+    protected $requestStack;
+    protected $em;
     protected $container;
 
-    public function __construct($class, Container $container)
+    public function __construct($class, Container $container, RequestStack $requestStack, EntityManager $em)
     {
         $this->class = $class;
-
         $this->container = $container;
+        $this->requestStack = $requestStack;
+        $this->em = $em;
+
         if($this->container->get('security.context')->isGranted('ROLE_ADMIN')){
             $this->roles = $this->refactorRoles($this->container->getParameter('security.role_hierarchy.roles'));
         }

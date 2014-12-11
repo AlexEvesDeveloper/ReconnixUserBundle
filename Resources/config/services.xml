@@ -34,6 +34,8 @@
             <tag name="form.type" alias="reconnix_user_profile" />
             <argument>%fos_user.model.user.class%</argument>
             <argument type="service" id="service_container" />
+            <argument type="service" id="request_stack" />
+            <argument type="service" id="doctrine.orm.entity_manager" />
         </service>
     </services>
 
