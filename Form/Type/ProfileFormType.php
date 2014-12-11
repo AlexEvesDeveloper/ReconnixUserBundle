@@ -15,7 +15,7 @@ class ProfileFormType extends AbstractType
     protected $currentRole;
     protected $container;
 
-    public function __construct($class, Container $container, $currentRole = 'ROLE_USER')
+    public function __construct($class, Container $container)
     {
         $this->class = $class;
 
@@ -35,7 +35,7 @@ class ProfileFormType extends AbstractType
                 'multiple' => false,
                 'expanded' => true,
                 'mapped' => false,
-                'data' => $this->currentRole
+                'data' => $this->getCurrentRole()
             ));
         }
     }
@@ -65,6 +65,12 @@ class ProfileFormType extends AbstractType
             ->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle'))
             ->add('email', 'email', array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
         ;
+    }
+
+    private function getCurrentRole()
+    {
+        $roles = $this->container->get('security.token_storage')->getToken()->getUser()->getRoles();
+        return $roles[0];
     }
 
     private function refactorRoles($originRoles)
