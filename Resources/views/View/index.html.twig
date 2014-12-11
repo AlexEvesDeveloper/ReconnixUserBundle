@@ -7,4 +7,6 @@
         	<input type="submit" value="{{ 'profile.edit.submit'|trans({}, 'FOSUserBundle') }}" />
     	</div>
 	</form>
+
+	<a href="{{path('reconnix_user_delete_index', {'id':user.id})}}">Delete</a>
 {% endblock fos_user_content %}
