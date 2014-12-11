@@ -1,7 +1,13 @@
 {% extends "FOSUserBundle::layout.html.twig" %}
 
 {% block fos_user_content %}
+	<ul>
 	{% for user in users %}
-		{{user.username}}<br>
+		<li>
+			<a href="{{path('reconnix_user_view_index', {'user':user.id})}}">{{user.username}}</a>
+		</li>
 	{% endfor %}
+	</ul>
+
+	<a href="{{path('reconnix_user_new_index')}}">Add new User</a>
 {% endblock fos_user_content %}
