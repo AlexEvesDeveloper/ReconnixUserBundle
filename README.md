@@ -70,6 +70,12 @@ The following three parameters are required. `firewall_name` must match the name
 ```yaml
 # app/config/config.yml
 
+framework:
+    // ...
+    translator: ~
+
+//...
+ 
 fos_user:
     db_driver: orm
     firewall_name: main
