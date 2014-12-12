@@ -1,14 +1,15 @@
-Overriding Default FOSUserBundle Forms
+Overriding Default ReconnixUserBundle Forms
 ======================================
 
-## Overriding a Form Type
+## Why would I need to?
 
-The default forms packaged with the FOSUserBundle provide functionality for
-registering new user, updating your profile, changing your password and
-much more. These forms work well with the bundle's default classes and controllers.
-But, as you start to add more properties to your `User`
-class or you decide you want to add a few options to the registration form you
-will find that you need to override the forms in the bundle.
+The ReconnixUserBundle provides a User class with several properties that are common to all of your projects. However, you may need to add an extra field to your User class, for example, `firstName` and `lastName`. Adding these to the class and updating the database table is simple enough, but we need to make these fields available as form inputs alongside the existing form inputs. To do this, we need to override the Form classes provided by ReconnixUserBundle. (Of course, if we are adding new fields to the User class which don't require User input, then overriding the forms is not necessary).
+
+## A quick word on the User forms
+
+There are 2 forms which display the User fields; the Registration form, and the Profile form. The Registration form is rendered when creating new Users (/register or /users/new). The Profile form is rendered when viewing an existing User (/profile/edit or /users/view/{id}). When adding a new field to the User, it is likely that both forms will need overriding, if you wish for the new fields to be controlled by user input.
+
+## Overriding a Form Type
 
 Suppose that you have created an ORM user class with the following class name,
 `Acme\UserBundle\Entity\User`. In this class, you have added a `name` property
@@ -21,7 +22,7 @@ property and its validators.
 // src/Acme/UserBundle/Entity/User.php
 <?php
 
-use FOS\UserBundle\Entity\User as BaseUser;
+use Reconnix\UserBundle\Entity\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -58,8 +59,7 @@ your new `name` property is not part of the form. You need to create a custom
 form type and configure the bundle to use it.
 
 The first step is to create a new form type in your own bundle. The following
-class extends the base FOSUserBundle `RegistrationFormType` and then adds the
-custom `name` field.
+class declares the parent as 'reconnix_user_registration', which is the name of the Form provided by the bundle. It is then a case of adding the new field to the class.
 
 ``` php
 // src/Acme/UserBundle/Form/Type/RegistrationFormType.php
@@ -67,17 +67,20 @@ custom `name` field.
 
 namespace Acme\UserBundle\Form\Type;
 
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use FOS\UserBundle\Form\Type\RegistrationFormType as BaseType;
 
-class RegistrationFormType extends BaseType
+class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        parent::buildForm($builder, $options);
-
         // add your custom field
         $builder->add('name');
+    }
+
+    public function getParent()
+    {
+        return 'reconnix_user_registration';
     }
 
     public function getName()
@@ -107,7 +110,6 @@ Below is an example of configuring your form type as a service in XML:
 
         <service id="acme_user.registration.form.type" class="Acme\UserBundle\Form\Type\RegistrationFormType">
             <tag name="form.type" alias="acme_user_registration" />
-            <argument>%fos_user.model.user.class%</argument>
         </service>
 
     </services>
@@ -122,7 +124,6 @@ Or if you prefer YAML:
 services:
     acme_user.registration.form.type:
         class: Acme\UserBundle\Form\Type\RegistrationFormType
-        arguments: [%fos_user.model.user.class%]
         tags:
             - { name: form.type, alias: acme_user_registration }
 ```
@@ -134,13 +135,11 @@ services:
 > constructor in your form type class, you must include this argument as it is a
 > requirement of the FOSUserBundle form type that you extended.
 
-Finally, you must update the configuration of the FOSUserBundle so that it will
-use your form type instead of the default one. Below is the configuration for
-changing the registration form type in YAML.
+Finally, you must tell the ReconnixUserBundle that you want to use your new form from now on. Add the following to `config.yml`. 
 
 ``` yaml
 # app/config/config.yml
-fos_user:
+reconnix_user:
     # ...
     registration:
         form:
@@ -148,159 +147,20 @@ fos_user:
 ```
 
 Note how the `alias` value used in your form type's service configuration tag
-is used in the bundle configuration to tell the FOSUserBundle to use your custom
+is used in the bundle configuration to tell the ReconnixUserBundle to use your custom
 form type.
 
-## Overriding Form Handlers
+### Note
 
-There are two ways to override the default functionality provided by the
-FOSUserBundle form handlers. The easiest way is to  override the `onSuccess`
-method of the handler. The `onSuccess` method is called after the form has been
-bound and validated.
-
-The second way is to override the `process` method. Overriding
-the `process` method should only be necessary when more advanced functionality
-is necessary when binding and validating the form.
-
-Suppose you want to add some functionality that takes place after a successful
-user registration. First you need to create a new class that extends
-`FOS\UserBundle\Form\Handler\RegistrationFormHandler` and then override the
-protected `onSuccess` method.
-
-``` php
-// src/Acme/UserBundle/Form/Handler/RegistrationFormHandler.php
-<?php
-
-namespace Acme\UserBundle\Form\Handler;
-
-use FOS\UserBundle\Form\Handler\RegistrationFormHandler as BaseHandler;
-use FOS\UserBundle\Model\UserInterface;
-
-class RegistrationFormHandler extends BaseHandler
-{
-    protected function onSuccess(UserInterface $user, $confirmation)
-    {
-        // Note: if you plan on modifying the user then do it before calling the
-        // parent method as the parent method will flush the changes
-
-        parent::onSuccess($user, $confirmation);
-
-        // otherwise add your functionality here
-    }
-}
-```
-
-**Note:**
-
-> If you do not call the onSuccess method of the parent class then the default
-> logic that the FOSUserBundle handler normally executes upon a successful
-> submission will not be performed.
-
-You can also choose to override the `process` method of the handler. If you choose
-to override the `process` method then you will be responsible for binding the form
-data and validating it, as well as implementing the logic required upon a
-successful submission.
-
-``` php
-// src/Acme/UserBundle/Form/Handler/RegistrationFormHandler.php
-<?php
-
-namespace Acme\UserBundle\Form\Handler;
-
-use FOS\UserBundle\Form\Handler\RegistrationFormHandler as BaseHandler;
-
-class RegistrationFormHandler extends BaseHandler
-{
-    public function process($confirmation = false)
-    {
-        $user = $this->userManager->createUser();
-        $this->form->setData($user);
-
-        if ('POST' == $this->request->getMethod()) {
-            $this->form->bind($this->request);
-            if ($this->form->isValid()) {
-
-                // do your custom logic here
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-}
-```
-
-**Note:**
-
-> The process method should return true for a successful submission and false
-> otherwise.
-
-Now that you have created and implemented your custom form handler class, you
-must configure it as a service in the container. Below is an example of
-configuring your form handler as a service in XML:
-
-``` xml
-<!-- src/Acme/UserBundle/Resources/config/services.xml -->
-<?xml version="1.0" encoding="UTF-8" ?>
-
-<container xmlns="http://symfony.com/schema/dic/services"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-
-    <services>
-
-        <service id="acme_user.form.handler.registration" class="Acme\UserBundle\Form\Handler\RegistrationFormHandler" scope="request" public="false">
-            <argument type="service" id="fos_user.registration.form" />
-            <argument type="service" id="request" />
-            <argument type="service" id="fos_user.user_manager" />
-            <argument type="service" id="fos_user.mailer" />
-            <argument type="service" id="fos_user.util.token_generator" />
-        </service>
-
-    </services>
-
-</container>
-```
-
-Or if you prefer YAML:
-
-``` yaml
-# src/Acme/UserBundle/Resources/config/services.yml
-services:
-    acme_user.form.handler.registration:
-        class: Acme\UserBundle\Form\Handler\RegistrationFormHandler
-        arguments: ["@fos_user.registration.form", "@request", "@fos_user.user_manager", "@fos_user.mailer", "@fos_user.util.token_generator"]
-        scope: request
-        public: false
-```
-
-Here you have injected other services as arguments to the constructor of our class
-because these arguments are required by the base FOSUserBundle form handler class
-which you extended.
-
-Now that your new form handler has been configured in the container, all that is
-left to do is update the FOSUserBundle configuration.
+The above example will add the fields to the Registration form. To also add them to the Profile form, you repeat the steps, and in the Form class, you declare the parent as `reconnix_user_profile`, and you add the following to `config.yml`:
 
 ``` yaml
 # app/config/config.yml
-fos_user:
+reconnix_user:
     # ...
-    registration:
+    profile:
         form:
-            handler: acme_user.form.handler.registration
+            type: acme_user_profile
 ```
 
-Note how the `id` of your configured service is used in the bundle configuration
-to tell the FOSUserBundle to use your custom form handler.
 
-At this point, when a user registers on your site your service will be used to
-handle the form submission.
-
-**Note:**
-
-> When you overwrite the form processing (be it only for the success logic
-> or for the whole processing), don't forget to save the changes when the
-> form is successful.
-> This is done as part of the default success logic so you need to save it
-> yourself if you don't call the original `onSuccess` method.
