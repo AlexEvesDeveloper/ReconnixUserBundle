@@ -212,5 +212,5 @@ If that works, you should be able to log in as that user from `.com/login`. And 
 
 ## Beyond the basics
 
-[Add new fields to the User]
+[Add new fields to the User](docs/overriding_forms.md)
 [Override the templates]
